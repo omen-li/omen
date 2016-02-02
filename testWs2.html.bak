@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>WS test server</title>
+<style type="text/css">
+table.gridtable {
+	font-family: verdana,arial,sans-serif;
+	font-size:11px;
+	color:#333333;
+	border-width: 1px;
+	border-color: #666666;
+	border-collapse: collapse;
+}
+table.gridtable th {
+	border-width: 1px;
+	padding: 8px;
+	border-style: solid;
+	border-color: #666666;
+	background-color: #dedede;
+}
+table.gridtable td {
+	border-width: 1px;
+	padding: 8px;
+	border-style: solid;
+	border-color: #666666;
+	background-color: #ffffff;
+}
+</style>
+</head>
+<body>
+<br>
+
+<script type="text/javascript">
+var socket;
+
+if(!window.WebSocket){
+	window.WebSocket = window.MozWebSocket;
+	}
+
+
+if(window.WebSocket){
+	socket = new WebSocket("ws://localhost:8001");
+	socket.onmessage = function(event){
+//		var ta = document.getElementById('responseText');
+		var str = event.data;
+		if (str.indexOf("DoWi") > 0) {
+			var obj = eval('(' + str + ')');
+			var value = obj.value;
+			if (value == "opened") {
+				value = "打开";
+			} else if (value == "closed") {
+				value = "关闭";
+			} else {
+				value = "未知";
+			}
+			document.getElementById('dsi').innerHTML=obj.sensorid;
+			document.getElementById('dst').innerHTML="门磁";
+			document.getElementById('dv').innerHTML=value;
+		} else if (str.indexOf("Leak") > 0) {
+			var obj = eval('(' + str + ')');
+			var value = obj.value;
+			if (value = "tamper alarm") {
+				value = "漏水";
+			} else {
+				value = "未知";
+			}
+			document.getElementById('lsi').innerHTML=obj.sensorid;
+			document.getElementById('lst').innerHTML="漏液";
+			document.getElementById('lv').innerHTML=value;
+		}
+	};
+	
+	socket.onopen = function(event){
+/* 		var ta = document.getElementById('responseText');
+		ta.value = "打开WS服务正常"; */
+	};
+	
+	socket.onclose = function(event) {
+/* 		var ta = document.getElementById('responseText');
+		ta.value = "";
+		ta.value = "websocket 关闭"; */
+	};
+}
+else
+	{
+	
+	alert("浏览器不支持websocket协议");
+	}
+
+	function send(message) {
+		if(!window.WebSocket) {return;}
+		if(socket.readyState == WebSocket.OPEN) {
+			socket.send(message);
+		}
+		else {
+			alert("WS连接未成功建立!");
+		}
+	}
+	
+</script>
+
+<form onsubmit="return false;">
+<input type="text" name = "message" value = "htmlMessage"/>
+<br><br>
+<input id="button" type="button" value=" 发送 WS 请求消息" onclick = "send(this.form.message.value)"/>
+<hr color="blue"/>
+<table class="gridtable">
+<thead>
+<tr><th>物理地址</th><th>传感器类型</th><th>状态</th></tr>
+</thead>
+<tbody>
+<tr><td id='dsi'></td><td id='dst'></td><td id='dv'></td></tr>
+<tr><td id='lsi'></td><td id='lst'></td><td id='lv'></td></tr>
+</tbody>
+</table>
+</form>
+</body>
+</html>

@@ -1,0 +1,3 @@
+SERVICE_ID=omen1
+SERVICE_NAME=omen
+MainClass=com.omen.netty.server.Main
